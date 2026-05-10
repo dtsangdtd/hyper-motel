@@ -1,6 +1,8 @@
 package hyper.service;
 
+import hyper.model.Role;
 import hyper.model.User;
+import hyper.repository.RoleRepository;
 import hyper.repository.UserRepository;
 import hyper.auth.AuthRequest;
 import hyper.auth.AuthResponse;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Collections;
 
 @Service
 public class AuthService {
@@ -28,15 +31,20 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtEncoder jwtEncoder;
     private final OAuth2ClientProperties clientProperties;
+    private final RoleRepository roleRepository;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtEncoder jwtEncoder,
-                       OAuth2ClientProperties clientProperties) {
+                       OAuth2ClientProperties clientProperties,
+                       RoleRepository roleRepository
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtEncoder = jwtEncoder;
         this.clientProperties = clientProperties;
+        this.roleRepository = roleRepository;
+
     }
 
     @Transactional
@@ -47,7 +55,12 @@ public class AuthService {
         }
 
         User user = new User(request.phoneNumber(), passwordEncoder.encode(request.password()));
-        userRepository.save(user);
+        Role userRole = roleRepository.findByName("manager")
+                .orElseGet(() -> roleRepository.save(new Role("manager")));
+
+        user.setRoles(Collections.singleton(userRole));
+
+        userRepository.save(user); // This saves to both 'user' and 'user_role' tables
         return issueToken(user.getPhoneNumber());
     }
 
