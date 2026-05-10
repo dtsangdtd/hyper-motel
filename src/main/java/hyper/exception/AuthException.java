@@ -1,4 +1,4 @@
-package hyper.auth;
+package hyper.exception;
 
 public class AuthException extends RuntimeException {
 

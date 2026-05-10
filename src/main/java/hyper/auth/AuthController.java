@@ -1,5 +1,7 @@
 package hyper.auth;
 
+import hyper.exception.AuthException;
+import hyper.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
