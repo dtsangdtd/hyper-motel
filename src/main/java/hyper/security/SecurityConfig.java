@@ -32,10 +32,10 @@ class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/oauth/token", "/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/students/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/students/**").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/students/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/students/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/customers/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/customers/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/customers/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/customers/**").authenticated()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
