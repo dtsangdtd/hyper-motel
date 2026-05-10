@@ -1,4 +1,4 @@
-package hyper.auth;
+package hyper.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "\"user\"") // "user" is a reserved word in Postgres, so it must be escaped
-public class AppUser {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,15 +32,15 @@ public class AppUser {
     @Column(nullable = false)
     private Boolean isActive = true;
 
-    protected AppUser() {
+    protected User() {
     }
 
-    public AppUser(String phoneNumber, String password) {
+    public User(String phoneNumber, String password) {
         this.phoneNumber = phoneNumber;
         this.password = password;
     }
 
-    public AppUser(String phoneNumber, String password, String firstName, String lastName) {
+    public User(String phoneNumber, String password, String firstName, String lastName) {
         this.phoneNumber = phoneNumber;
         this.password = password;
         this.firstName = firstName;

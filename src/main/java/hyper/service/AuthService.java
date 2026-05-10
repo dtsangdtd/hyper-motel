@@ -1,5 +1,10 @@
-package hyper.auth;
+package hyper.service;
 
+import hyper.model.User;
+import hyper.repository.UserRepository;
+import hyper.auth.AuthRequest;
+import hyper.auth.AuthResponse;
+import hyper.exception.AuthException;
 import hyper.exception.ServiceUnavailableException;
 import hyper.security.OAuth2ClientProperties;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -19,16 +24,16 @@ public class AuthService {
 
     private static final String CIRCUIT_BREAKER_NAME = "authService";
 
-    private final AppUserRepository appUserRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtEncoder jwtEncoder;
     private final OAuth2ClientProperties clientProperties;
 
-    public AuthService(AppUserRepository appUserRepository,
+    public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtEncoder jwtEncoder,
                        OAuth2ClientProperties clientProperties) {
-        this.appUserRepository = appUserRepository;
+        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtEncoder = jwtEncoder;
         this.clientProperties = clientProperties;
@@ -37,19 +42,19 @@ public class AuthService {
     @Transactional
     @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "registerFallback")
     public AuthResponse register(AuthRequest request) {
-        if (appUserRepository.existsByPhoneNumber(request.phoneNumber())) {
+        if (userRepository.existsByPhoneNumber(request.phoneNumber())) {
             throw new AuthException("Phone number already exists");
         }
 
-        AppUser user = new AppUser(request.phoneNumber(), passwordEncoder.encode(request.password()));
-        appUserRepository.save(user);
+        User user = new User(request.phoneNumber(), passwordEncoder.encode(request.password()));
+        userRepository.save(user);
         return issueToken(user.getPhoneNumber());
     }
 
     @Transactional(readOnly = true)
     @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "loginFallback")
     public AuthResponse login(AuthRequest request) {
-        AppUser user = appUserRepository.findByPhoneNumber(request.phoneNumber())
+        User user = userRepository.findByPhoneNumber(request.phoneNumber())
                 .orElseThrow(() -> new AuthException("Invalid phone number or password"));
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
