@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -61,7 +63,7 @@ public class AuthService {
         user.setRoles(Collections.singleton(userRole));
 
         userRepository.save(user); // This saves to both 'user' and 'user_role' tables
-        return issueToken(user.getPhoneNumber());
+        return issueToken(user);
     }
 
     @Transactional(readOnly = true)
@@ -74,23 +76,27 @@ public class AuthService {
             throw new AuthException("Invalid phone number or password");
         }
 
-        return issueToken(user.getPhoneNumber());
+        return issueToken(user);
     }
 
-    private AuthResponse issueToken(String phoneNumber) {
+    private AuthResponse issueToken(User user) {
         Instant issuedAt = Instant.now();
         Instant expiresAt = issuedAt.plusSeconds(clientProperties.tokenValiditySeconds());
+        List<String> roles = user.getRoles().stream()
+                .map(Role::getName)
+                .toList();
         String token = jwtEncoder.encode(JwtEncoderParameters.from(
                 JwsHeader.with(MacAlgorithm.HS256).build(),
                 JwtClaimsSet.builder()
                         .issuer("self")
-                        .subject(phoneNumber)
+                        .subject(user.getPhoneNumber())
+                        .claim("roles", roles) // ADDED: Roles in token
                         .issuedAt(issuedAt)
                         .expiresAt(expiresAt)
                         .build()
         )).getTokenValue();
 
-        return new AuthResponse(token, "Bearer", clientProperties.tokenValiditySeconds(), phoneNumber);
+        return new AuthResponse(token, "Bearer", clientProperties.tokenValiditySeconds(), user.getId());
     }
 
     private AuthResponse registerFallback(AuthRequest request, Throwable throwable) {
