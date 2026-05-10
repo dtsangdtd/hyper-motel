@@ -5,8 +5,12 @@ import hyper.exception.CustomerNotFoundException;
 import hyper.model.Customer;
 import hyper.repository.CustomerRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,8 +26,8 @@ public class CustomerService {
     }
 
     @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "retrieveAllCustomersFallback")
-    public List<Customer> retrieveAllCustomers() {
-        return customerRepository.findAll();
+    public Page<Customer> retrieveAllCustomers(Pageable pageable) {
+        return customerRepository.findAll(pageable);
     }
 
     @CircuitBreaker(name = CIRCUIT_BREAKER_NAME, fallbackMethod = "retrieveCustomerFallback")
@@ -54,24 +58,24 @@ public class CustomerService {
         return true;
     }
 
-    private List<Customer> retrieveAllStudentsFallback(Throwable throwable) {
-        throw serviceUnavailable("Student list is temporarily unavailable", throwable);
+    private Page<Customer> retrieveAllCustomersFallback(Pageable pageable, Throwable throwable) {
+        throw serviceUnavailable("Customer list is temporarily unavailable", throwable);
     }
 
-    private Customer retrieveStudentFallback(UUID id, Throwable throwable) {
-        throw serviceUnavailable("Student retrieval is temporarily unavailable for id " + id, throwable);
+    private Customer retrieveCustomerFallback(UUID id, Throwable throwable) {
+        throw serviceUnavailable("Customer retrieval is temporarily unavailable for id " + id, throwable);
     }
 
-    private void deleteStudentFallback(UUID id, Throwable throwable) {
-        throw serviceUnavailable("Student deletion is temporarily unavailable for id " + id, throwable);
+    private void deleteCustomerFallback(UUID id, Throwable throwable) {
+        throw serviceUnavailable("Customer deletion is temporarily unavailable for id " + id, throwable);
     }
 
-    private Customer createStudentFallback(Customer customer, Throwable throwable) {
-        throw serviceUnavailable("Student creation is temporarily unavailable", throwable);
+    private Customer createCustomerFallback(Customer customer, Throwable throwable) {
+        throw serviceUnavailable("Customer creation is temporarily unavailable", throwable);
     }
 
-    private boolean updateStudentFallback(UUID id, Customer customer, Throwable throwable) {
-        throw serviceUnavailable("Student update is temporarily unavailable for id " + id, throwable);
+    private boolean updateCustomerFallback(UUID id, Customer customer, Throwable throwable) {
+        throw serviceUnavailable("Customer update is temporarily unavailable for id " + id, throwable);
     }
 
     private ServiceUnavailableException serviceUnavailable(String message, Throwable throwable) {

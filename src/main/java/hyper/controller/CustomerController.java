@@ -5,6 +5,8 @@ import hyper.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +32,10 @@ public class CustomerController {
 
 	@GetMapping("/customers")
     @Operation(summary = "Retrieve all customer", description = "Requires a valid bearer token")
-	public List<Customer> retrieveAllCustomers() {
-		return customerService.retrieveAllCustomers();
+	public Page<Customer> retrieveAllCustomers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+		return customerService.retrieveAllCustomers(PageRequest.of(page, size));
 	}
 
 	@GetMapping("/customers/{id}")
@@ -41,7 +45,7 @@ public class CustomerController {
 		Customer customer = customerService.retrieveCustomer(id);
 
 		EntityModel<Customer> resource = EntityModel.of(customer);
-		WebMvcLinkBuilder linkTo = linkTo(methodOn(this.getClass()).retrieveAllCustomers());
+		WebMvcLinkBuilder linkTo = linkTo(methodOn(this.getClass()).retrieveAllCustomers(0, 10));
 		resource.add(linkTo.withRel("all-students"));
 
 		return resource;

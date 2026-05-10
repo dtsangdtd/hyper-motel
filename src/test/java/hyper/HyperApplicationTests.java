@@ -19,13 +19,13 @@ public class HyperApplicationTests {
 	}
 
 	@Test
-	void studentsEndpointRequiresOAuth2Token() throws Exception {
-		mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/students"))
+	void customersEndpointRequiresOAuth2Token() throws Exception {
+		mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/customers"))
 				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isUnauthorized());
 	}
 
 	@Test
-	void registeredUserCanAccessStudentsEndpoint() throws Exception {
+	void registeredUserCanAccessCustomersEndpoint() throws Exception {
 		String tokenResponse = mockMvc.perform(
 						org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/auth/register")
 								.contentType(org.springframework.http.MediaType.APPLICATION_JSON)
@@ -43,10 +43,10 @@ public class HyperApplicationTests {
 
 		String accessToken = tokenResponse.replaceAll(".*\"accessToken\":\"([^\"]+)\".*", "$1");
 
-		mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/students")
+		mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/customers")
 						.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))
 				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
-				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$[0].name").value("Ranga"));
+				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.content").isArray());
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class HyperApplicationTests {
 	}
 
 	@Test
-	void authenticatedUserCanCreateStudent() throws Exception {
+	void authenticatedUserCanCreateCustomer() throws Exception {
 		String tokenResponse = mockMvc.perform(
 						org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/auth/register")
 								.contentType(org.springframework.http.MediaType.APPLICATION_JSON)
@@ -95,17 +95,18 @@ public class HyperApplicationTests {
 		String accessToken = tokenResponse.replaceAll(".*\"accessToken\":\"([^\"]+)\".*", "$1");
 
 		mockMvc.perform(
-						org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/students")
+						org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/customers")
 								.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
 								.contentType(org.springframework.http.MediaType.APPLICATION_JSON)
 								.content("""
 										{
-										  "id": "99999999-9999-9999-9999-999999999999",
-										  "name": "David",
-										  "passportNumber": "P1234567"
+										  "roomId": "00000000-0000-0000-0000-000000000001",
+										  "identityNumber": "P1234567",
+										  "firstName": "David",
+										  "lastName": "Miller"
 										}
 										"""))
 				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isCreated())
-				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header().string("Location", org.hamcrest.Matchers.matchesPattern(".*/students/[0-9a-fA-F\\-]{36}$")));
+				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header().string("Location", org.hamcrest.Matchers.matchesPattern(".*/customers/[0-9a-fA-F\\-]{36}$")));
 	}
 }
