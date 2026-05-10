@@ -1,12 +1,9 @@
 package hyper.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -17,23 +14,25 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID id;
 
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(name = "\"phoneNumber\"", nullable = false, unique = true, length = 20)
     private String phoneNumber;
-
     @Column(nullable = false, length = 255)
     private String password;
-
-    @Column(length = 100)
+    @Column(name = "\"firstName\"", length = 100)
     private String firstName;
 
-    @Column(length = 100)
+    @Column(name = "\"lastName\"", length = 100)
     private String lastName;
 
-    @Column(nullable = false)
+    @Column(name = "\"isActive\"", nullable = false)
     private Boolean isActive = true;
+
 
     protected User() {
     }
+
+
+    // Add Getter and Setter for roles
 
     public User(String phoneNumber, String password) {
         this.phoneNumber = phoneNumber;
@@ -48,12 +47,28 @@ public class User {
         this.isActive = true;
     }
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "\"userRole\"",
+            joinColumns = @JoinColumn(name = "\"userId\""),      // Explicitly quote userId
+            inverseJoinColumns = @JoinColumn(name = "\"roleId\"") // Explicitly quote roleId
+    )
+    private Set<Role> roles = new HashSet<>();
+
     public UUID getId() {
         return id;
     }
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 
     public String getPhoneNumber() {
