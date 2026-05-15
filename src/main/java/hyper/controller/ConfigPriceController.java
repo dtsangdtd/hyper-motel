@@ -48,7 +48,7 @@ public class ConfigPriceController {
         return resource;
     }
 
-    @GetMapping("/config-prices/{id}")
+    @DeleteMapping("/config-prices/{id}")
     @Operation(summary = "Delete config price", description = "Requires a valid bearer token")
     public void deleteConfigPrice(@PathVariable UUID id) {
         configPriceService.deleteConfigPrice(id);
