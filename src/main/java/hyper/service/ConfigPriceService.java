@@ -30,13 +30,17 @@ public class ConfigPriceService {
     public void deleteConfigPrice(UUID id) {
         configPriceRepository.deleteById(id);
     }
-
-    public ConfigPrice updateConfigPrice(UUID id, ConfigPrice configPrice) {
+    public ConfigPrice createConfigPrice(ConfigPrice configPrice) {
+        configPrice.setId(null);
+        return configPriceRepository.save(configPrice);
+    }
+    public boolean updateConfigPrice(UUID id, ConfigPrice configPrice) {
         if (configPriceRepository.findById(id).isEmpty()) {
-            throw new ConfigPriceNotFoundException("id-" + id);
+            return false;
         }
         configPrice.setId(id);
-       return configPriceRepository.save(configPrice);
+        configPriceRepository.save(configPrice);
+        return true;
 
     }
 }
