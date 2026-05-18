@@ -1,0 +1,13 @@
+services:
+  hyper-motel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hyper-motel-api
+    restart: unless-stopped
+    networks:
+      - reverse-proxy-networks
+
+networks:
+  reverse-proxy-networks:
+    external: true
