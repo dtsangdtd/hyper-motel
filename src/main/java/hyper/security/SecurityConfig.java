@@ -36,6 +36,10 @@ class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/customers/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/customers/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/customers/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/rooms/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/rooms/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/rooms/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/rooms/**").authenticated()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
